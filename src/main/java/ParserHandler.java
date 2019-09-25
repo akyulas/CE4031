@@ -1,3 +1,4 @@
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -12,18 +13,19 @@ import java.util.*;
 
 public class ParserHandler extends DefaultHandler{
 
-    int count = 0;
+    private int level = 0;
+    private int count = 0;
 
     private List<String> publicationType = Arrays.asList("incollection", "book", "inproceedings", "article");
     private List<String> titleModifiers = Arrays.asList("tt", "sub", "i", "sup");
 
-    private Set<Author> authorSet = new HashSet<Author>();
+    private Set<String> authorSet = new HashSet<String>();
     private List<Publication> publicationList = new ArrayList<Publication>();
     private Set<Authored> authoredSet = new HashSet<Authored>();
 
-    private Set<Author> currentAuthorSet = null;
-    private Publication currentPublication = null;
-    private Set<Authored> currentAuthoredSet = null;
+//    private Set<Author> currentAuthorSet = new HashSet<Author>();
+    private Publication currentPublication = new Publication();
+    private Set<Authored> currentAuthoredSet = new HashSet<Authored>();
 
     private String currentTitle = "";
     private String currentPublicationKey = "";
@@ -38,13 +40,32 @@ public class ParserHandler extends DefaultHandler{
     private boolean titleModifier = false;
 
     @Override
+    public void startDocument() throws SAXException {
+        try {
+            CSVWriter.createNewCSV();
+        } catch(IOException ioException) {
+            ioException.printStackTrace();
+            System.out.println("Can't create new csv");
+        }
+    }
+
+    @Override
     public void startElement(String uri, String eleName, String raw, Attributes attributes) throws SAXException {
-        count++;
+        level++;
         if (publicationType.contains(raw)) {
+            count++;
+            if (count % 100 == 0) {
+                try {
+                    writeToCSV(new HashSet<String>(), authoredSet, publicationList);
+//                    authorSet.clear();
+                    authoredSet.clear();
+                    publicationList = new ArrayList<Publication>();
+                } catch(IOException ioException) {
+                    ioException.printStackTrace();
+                    System.out.println("Can't write to csv");
+                }
+            }
             publication = true;
-            currentAuthorSet = new HashSet<Author>();
-            currentPublication = new Publication();
-            currentAuthoredSet = new HashSet<Authored>();
             String pubKey = attributes.getValue("key");
             String mdate = attributes.getValue("mdate");
             currentPublicationKey = pubKey;
@@ -91,28 +112,29 @@ public class ParserHandler extends DefaultHandler{
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        if (count == 2 && publication) {
+        if (level == 2 && publication) {
             if (currentAuthoredSet.isEmpty()) {
                 Authored tempAuthored = new Authored();
                 tempAuthored.setAuthorName("N/A");
                 tempAuthored.setPublicationKey(currentPublicationKey);
                 currentAuthoredSet.add(tempAuthored);
             }
-            authorSet.addAll(currentAuthorSet);
+//            authorSet.addAll(currentAuthorSet);
             authoredSet.addAll(currentAuthoredSet);
             publicationList.add(currentPublication);
+//            currentAuthorSet.clear();
+            currentAuthoredSet.clear();
+            currentPublication = new Publication();
             currentPublicationKey = "";
             publication = false;
-        } else if (count == 4 && titleModifier) {
+        } else if (level == 4 && titleModifier) {
             titleModifier = false;
-        } else if (count == 3 && title) {
+        } else if (level == 3 && title) {
             currentPublication.setTitle(currentTitle);
             currentTitle = "";
             title = false;
-        } else if (count == 3 && author) {
-            Author tempAuthor = new Author();
-            tempAuthor.setName(currentAuthorName);
-            currentAuthorSet.add(tempAuthor);
+        } else if (level == 3 && author) {
+            authorSet.add(currentAuthorName);
             Authored tempAuthored = new Authored();
             tempAuthored.setAuthorName(currentAuthorName);
             tempAuthored.setPublicationKey(currentPublicationKey);
@@ -120,17 +142,21 @@ public class ParserHandler extends DefaultHandler{
             currentAuthorName = "";
             author = false;
         }
-        count--;
+        level--;
     }
 
     @Override
     public void endDocument() {
         try {
-            CSVWriter.writeToCSV(authorSet, authoredSet, publicationList);
+            writeToCSV(authorSet, authoredSet, publicationList);
         } catch(IOException ioException) {
             ioException.printStackTrace();
             System.out.println("Can't write to csv");
         }
+    }
+
+    private void writeToCSV(Set<String> authorSet, Set<Authored> authoredSet, List<Publication> publicationList) throws IOException {
+        CSVWriter.writeToCSV(authorSet, authoredSet, publicationList);
     }
 
 

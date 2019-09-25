@@ -12,13 +12,19 @@ public class CSVWriter {
     private static final String authoredCSVName = "authored.csv";
     private static final String CSV_SEPARATOR = "|";
 
-    public static void writeToCSV(Set<Author> authorSet, Set<Authored> authoredSet, List<Publication> publicationList) throws IOException {
+    public static void writeToCSV(Set<String> authorSet, Set<Authored> authoredSet, List<Publication> publicationList) throws IOException {
         writeToAuthorCSV(authorSet);
         writeToAuthoredCSV(authoredSet);
         writeToPublicationCSV(publicationList);
     }
 
-    private static void writeToPublicationCSV(List<Publication> publicationList) throws IOException {
+    public static void createNewCSV() throws IOException {
+        createNewPublicationCSV();
+        createNewAuthorCSV();
+        createNewAuthoredCSV();
+    }
+
+    private static void createNewPublicationCSV() throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(publicationCSVName), "UTF-8"));
         StringBuffer oneLine = new StringBuffer();
         oneLine.append("pubKey");
@@ -36,8 +42,17 @@ public class CSVWriter {
         oneLine.append("year");
         bw.write(oneLine.toString());
         bw.newLine();
+        bw.flush();
+        bw.close();
+    }
+
+    private static void writeToPublicationCSV(List<Publication> publicationList) throws IOException {
+        if (publicationList.size() == 0) {
+            return;
+        }
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(publicationCSVName, true), "UTF-8"));
         for (Publication publication: publicationList) {
-            oneLine =  new StringBuffer();
+            StringBuffer oneLine =  new StringBuffer();
             oneLine.append(publication.getPubKey());
             oneLine.append(CSV_SEPARATOR);
             oneLine.append(publication.getMdate());
@@ -58,15 +73,24 @@ public class CSVWriter {
         bw.close();
     }
 
-    private static void writeToAuthorCSV(Set<Author> authorSet) throws IOException {
+    private static void createNewAuthorCSV() throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(authorCSVName), "UTF-8"));
         StringBuffer oneLine = new StringBuffer();
         oneLine.append("author");
         bw.write(oneLine.toString());
         bw.newLine();
-        for (Author author: authorSet) {
-            oneLine =  new StringBuffer();
-            oneLine.append(author.getName());
+        bw.flush();
+        bw.close();
+    }
+
+    private static void writeToAuthorCSV(Set<String> authorSet) throws IOException {
+        if (authorSet.size() == 0) {
+            return;
+        }
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(authorCSVName, true), "UTF-8"));
+        for (String author: authorSet) {
+            StringBuffer oneLine =  new StringBuffer();
+            oneLine.append(author);
             bw.write(oneLine.toString());
             bw.newLine();
         }
@@ -74,7 +98,7 @@ public class CSVWriter {
         bw.close();
     }
 
-    private static void writeToAuthoredCSV(Set<Authored> authoredSet) throws IOException {
+    private static void createNewAuthoredCSV() throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(authoredCSVName), "UTF-8"));
         StringBuffer oneLine = new StringBuffer();
         oneLine.append("author_name");
@@ -82,8 +106,17 @@ public class CSVWriter {
         oneLine.append("publication_key");
         bw.write(oneLine.toString());
         bw.newLine();
+        bw.flush();
+        bw.close();
+    }
+
+    private static void writeToAuthoredCSV(Set<Authored> authoredSet) throws IOException {
+        if (authoredSet.size() == 0) {
+            return;
+        }
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(authoredCSVName, true), "UTF-8"));
         for (Authored authored: authoredSet) {
-            oneLine =  new StringBuffer();
+            StringBuffer oneLine =  new StringBuffer();
             oneLine.append(authored.getAuthorName());
             oneLine.append(CSV_SEPARATOR);
             oneLine.append(authored.getPublicationKey());

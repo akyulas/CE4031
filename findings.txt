@@ -1,4 +1,8 @@
 {1=[dblp], 2=[incollection, www, book, mastersthesis, proceedings, inproceedings, phdthesis, article], 3=[ee, note, editor, chapter, address, year, author, isbn, title, cdrom, url, volume, number, journal, pages, month, school, series, publisher, cite, booktitle, crossref], 4=[tt, sub, i, sup], 5=[tt, sub, i, sup], 6=[i, sup]}
 {incollection={ee=2, note=1, chapter=1, year=1, author=50, title=1, cdrom=1, url=1, number=1, pages=1, cite=103, publisher=1, booktitle=1, crossref=1}, www={ee=1, editor=6, note=10, year=1, author=10, cite=30, title=1, crossref=1, url=18}, book={ee=7, editor=13, note=1, year=1, author=18, isbn=4, title=1, cdrom=1, url=1, volume=1, pages=2, month=1, school=2, series=1, publisher=1, cite=741, booktitle=1, crossref=1}, mastersthesis={ee=2, note=1, year=1, school=1, author=1, title=1}, proceedings={ee=5, editor=31, note=2, address=1, year=1, author=1, isbn=3, title=1, url=1, volume=1, number=1, pages=1, journal=1, series=2, publisher=3, cite=212, booktitle=1, crossref=1}, inproceedings={ee=7, note=1, editor=6, year=1, author=155, title=1, cdrom=2, url=1, number=1, pages=1, month=1, cite=137, booktitle=1, crossref=2}, phdthesis={ee=7, note=2, year=2, author=3, isbn=3, title=1, url=1, volume=1, number=1, pages=2, month=1, school=3, series=1, publisher=1}, article={ee=4, note=2, editor=5, year=1, author=287, title=1, cdrom=1, url=1, volume=1, number=1, journal=1, pages=1, month=1, publisher=1, cite=348, crossref=1, booktitle=1}}
+article = 2100974
+inproceedings = 2457260
+incollection = 59744
+book = 17737
 
 

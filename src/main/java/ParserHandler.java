@@ -30,6 +30,9 @@ public class ParserHandler extends DefaultHandler{
     private String currentTitle = "";
     private String currentPublicationKey = "";
     private String currentAuthorName = "";
+    private String currentYear = "";
+    private String currentBookTitle = "";
+    private String currentJournal = "";
 
     private boolean publication = false;
     private boolean author = false;
@@ -97,14 +100,11 @@ public class ParserHandler extends DefaultHandler{
         } else if (title) {
             currentTitle += string;
         } else if (year) {
-            currentPublication.setYear(string);
-            year = false;
+            currentYear += string;
         } else if (journal) {
-            currentPublication.setJournal(string);
-            journal =false;
+            currentJournal += string;
         } else if (booktitle) {
-            currentPublication.setBooktitle(string);
-            booktitle = false;
+            currentBookTitle += string;
         } else if (titleModifier) {
             currentTitle += string;
         }
@@ -141,6 +141,18 @@ public class ParserHandler extends DefaultHandler{
             currentAuthoredSet.add(tempAuthored);
             currentAuthorName = "";
             author = false;
+        } else if (level == 3 && year) {
+            currentPublication.setYear(currentYear);
+            currentYear = "";
+            year = false;
+        } else if (level == 3 && journal) {
+            currentPublication.setJournal(currentJournal);
+            currentJournal = "";
+            journal =false;
+        } else if (level == 3 && booktitle) {
+            currentPublication.setBooktitle(currentBookTitle);
+            currentBookTitle = "";
+            booktitle = false;
         }
         level--;
     }

@@ -10,7 +10,7 @@ public class CSVWriter {
     private static final String publicationCSVName = "publication.csv";
     private static final String authorCSVName = "author.csv";
     private static final String authoredCSVName = "authored.csv";
-    private static final String CSV_SEPARATOR = "|";
+    private static final String CSV_SEPARATOR = "`";
 
     public static void writeToCSV(Set<String> authorSet, Set<Authored> authoredSet, List<Publication> publicationList) throws IOException {
         writeToAuthorCSV(authorSet);
@@ -39,7 +39,7 @@ public class CSVWriter {
         oneLine.append(CSV_SEPARATOR);
         oneLine.append("bookTitle");
         oneLine.append(CSV_SEPARATOR);
-        oneLine.append("year");
+        oneLine.append("publishedYear");
         bw.write(oneLine.toString());
         bw.newLine();
         bw.flush();
@@ -53,19 +53,19 @@ public class CSVWriter {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(publicationCSVName, true), "UTF-8"));
         for (Publication publication: publicationList) {
             StringBuffer oneLine =  new StringBuffer();
-            oneLine.append(publication.getPubKey());
+            oneLine.append(escapeSpecialCharacters(publication.getPubKey()));
             oneLine.append(CSV_SEPARATOR);
-            oneLine.append(publication.getMdate());
+            oneLine.append(escapeSpecialCharacters(publication.getMdate()));
             oneLine.append(CSV_SEPARATOR);
-            oneLine.append(publication.getTitle());
+            oneLine.append(escapeSpecialCharacters(publication.getTitle()));
             oneLine.append(CSV_SEPARATOR);
-            oneLine.append(publication.getType());
+            oneLine.append(escapeSpecialCharacters(publication.getType()));
             oneLine.append(CSV_SEPARATOR);
-            oneLine.append(publication.getJournal());
+            oneLine.append(escapeSpecialCharacters(publication.getJournal()));
             oneLine.append(CSV_SEPARATOR);
-            oneLine.append(publication.getBooktitle());
+            oneLine.append(escapeSpecialCharacters(publication.getBooktitle()));
             oneLine.append(CSV_SEPARATOR);
-            oneLine.append(publication.getYear());
+            oneLine.append(escapeSpecialCharacters(publication.getYear()));
             bw.write(oneLine.toString());
             bw.newLine();
         }
@@ -76,7 +76,7 @@ public class CSVWriter {
     private static void createNewAuthorCSV() throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(authorCSVName), "UTF-8"));
         StringBuffer oneLine = new StringBuffer();
-        oneLine.append("author");
+        oneLine.append("name");
         bw.write(oneLine.toString());
         bw.newLine();
         bw.flush();
@@ -125,6 +125,19 @@ public class CSVWriter {
         }
         bw.flush();
         bw.close();
+    }
+
+    private static String escapeSpecialCharacters(String string) {
+        /**
+         * This is some stupid hacks that I hope nobody sees =)
+         */
+        if (string == null) {
+            return "null";
+        }
+        String result = string.replaceAll("\"", "\\\\\"");
+        result = result.replaceAll("\'", "\\\\'");
+        result = result.replaceAll("\\\\0", "\\\\\\\\0");
+        return result;
     }
 
 }

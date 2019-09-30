@@ -8,8 +8,8 @@ CREATE TABLE Publications(
 	journal TEXT,
 	bookTitle TEXT,
 	publishedYear TEXT,
-	publishedMonth TEXT
-	
+	publishedMonth TEXT,
+	crossRef TEXT
 );
 
 

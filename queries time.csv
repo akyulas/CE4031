@@ -1,0 +1,10 @@
+Queries,before,after index,after 1/2,after 1/4
+1,4s 138ms,4s 115ms,,
+2,7s 150ms,,,
+3,1s 873ms,,,
+4,1m 5s,,,
+5,17s 841ms,,,
+6,2s 353ms,,,
+7a,18s 820ms,,,
+7b,13s 733ms,,,
+8,2min 2s,,,

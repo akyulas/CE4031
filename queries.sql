@@ -5,16 +5,22 @@ where publishedyear between '2000' and '2018'
 group by category
 
 --query2 
+create unique index bookTitle_index
+on publications(bookTitle);
+
+drop index bookTitle_index;
+
 select distinct booktitle
 from (
 	select booktitle, publishedyear, count(*) as conf_count
 	from publications
-	where type = 'inproceedings'
+	where category = 'inproceedings'
 	group by booktitle, publishedyear
 ) conf
 where conf_count > 500
 
 --query 3
+
 
 SELECT concat(CAST(T.YearDivision * 10 AS nchar(4)),  N' - ', CAST(T.YearDivision * 10 + 9 AS nchar(4))) AS YearRange, SUM(T.TotalCount)
 FROM
@@ -26,7 +32,10 @@ FROM
 ) T
 GROUP BY YearDivision
 
+create index journal_index on publications (journal);
+
 --query 4
+create view co_count as(
 select T3.author, T3.cnt from (
 select author, count(*) as cnt from (
 select A1.author_name as author, A2.author_name as co_author from authored A1 join (
@@ -35,7 +44,12 @@ and crossRef in (select pubkey from publications where category = 'proceedings'
 and lower(title) like '%data%')) 
 or (category = 'article' and lower(journal) like '%data%')
 )T1 on A1.publication_key = T1.pubkey join authored A2 on A1.publication_key = A2.publication_key
-and A1.author_name <> A2.author_name) T2 group by author) T3 order by cnt desc limit 1;
+and A1.author_name <> A2.author_name) T2 group by author) T3);
+
+select author, cnt 
+from co_count 
+where cnt = (select max(cnt) from co_count);
+
 
 --query 5
 select *
@@ -87,14 +101,21 @@ where author.name in (
 group by author.name, authored.author_name
 
 --query 8
-create view temp1 as (select author_name, booktitle, count(*) as number_of_times_published from authored join publications
-on authored.publication_key = publications.pubkey
-where publications.category = 'inproceedings'
-group by authored.author_name,publications.booktitle);
 
-select author_name from(select booktitle, max(number_of_times_published) as max_count 
-from temp1
-group by booktitle) T1 join temp1 on temp1.number_of_times_published = T1.max_count;
+create view inpro_count as(
+	select author_name, publishedyear, count(*) as cnt from
+	authored join publications on authored.publication_key = publications.pubKey
+	where publications.category = 'inproceedings'
+	group by author_name, publishedyear
+);
+
+select author_name, cnt
+from inpro_count
+where cnt = (
+	select cnt
+	from inpro_count
+	order by cnt desc limit 1 offset 1
+)
 
 
 

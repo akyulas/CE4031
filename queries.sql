@@ -1,37 +1,21 @@
 set enable_seqscan = on;
 select current_setting('shared_buffers') as shared_buffers;
-ALTER TABLE authored 
-ADD CONSTRAINT verify_authored FOREIGN KEY (author_name) REFERENCES author (name)
-
-ALTER TABLE authored 
-ADD CONSTRAINT verify_publication FOREIGN KEY (publication_key) REFERENCES publications (pubKey)
-
 
 --query 1
+create index publishedYear_index 
+on publications(publishedyear)
+
+drop index publishedYear_index
 explain (analyze,buffers) select category, count(*) 
 from publications
 where publishedyear between '2000' and '2018'
 group by category
 
-create index publishedYear_index 
-on publications(publishedyear)
-
-drop index publishedYear_index
-
-explain analyze select category, count(*) 
-from publications
-where publishedyear between '2000' and '2018'
-group by category
-
-
-
 --query2 
 create index category_index
 on publications(category);
 
-
 drop index category_index;
-
 explain (analyze,buffers) select distinct booktitle
 from (
 	select booktitle, publishedyear, count(*) as conf_count
@@ -54,11 +38,7 @@ FROM
 ) T
 GROUP BY YearDivision
 
-create index journal_index on publications (journal);
-
 --query 4
-
-
 create view co_count as(
 select T3.author, T3.cnt from (
 select author, count(*) as cnt from (

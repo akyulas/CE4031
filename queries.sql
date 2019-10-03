@@ -1,16 +1,38 @@
+set enable_seqscan = on;
+select current_setting('shared_buffers') as shared_buffers;
+ALTER TABLE authored 
+ADD CONSTRAINT verify_authored FOREIGN KEY (author_name) REFERENCES author (name)
+
+ALTER TABLE authored 
+ADD CONSTRAINT verify_publication FOREIGN KEY (publication_key) REFERENCES publications (pubKey)
+
+
 --query 1
-select category, count(*) 
+explain (analyze,buffers) select category, count(*) 
 from publications
 where publishedyear between '2000' and '2018'
 group by category
 
+create index publishedYear_index 
+on publications(publishedyear)
+
+drop index publishedYear_index
+
+explain analyze select category, count(*) 
+from publications
+where publishedyear between '2000' and '2018'
+group by category
+
+
+
 --query2 
-create unique index bookTitle_index
-on publications(bookTitle);
+create index category_index
+on publications(category);
 
-drop index bookTitle_index;
 
-select distinct booktitle
+drop index category_index;
+
+explain (analyze,buffers) select distinct booktitle
 from (
 	select booktitle, publishedyear, count(*) as conf_count
 	from publications
@@ -20,9 +42,9 @@ from (
 where conf_count > 500
 
 --query 3
+--publishedYear_index and category_index created
 
-
-SELECT concat(CAST(T.YearDivision * 10 AS nchar(4)),  N' - ', CAST(T.YearDivision * 10 + 9 AS nchar(4))) AS YearRange, SUM(T.TotalCount)
+explain (analyze,buffers) SELECT concat(CAST(T.YearDivision * 10 AS nchar(4)),  N' - ', CAST(T.YearDivision * 10 + 9 AS nchar(4))) AS YearRange, SUM(T.TotalCount)
 FROM
 (
     SELECT cast (publishedyear as int) / 10 AS YearDivision, COUNT(*) AS TotalCount
@@ -35,6 +57,8 @@ GROUP BY YearDivision
 create index journal_index on publications (journal);
 
 --query 4
+
+
 create view co_count as(
 select T3.author, T3.cnt from (
 select author, count(*) as cnt from (
@@ -46,13 +70,13 @@ or (category = 'article' and lower(journal) like '%data%')
 )T1 on A1.publication_key = T1.pubkey join authored A2 on A1.publication_key = A2.publication_key
 and A1.author_name <> A2.author_name) T2 group by author) T3);
 
-select author, cnt 
+explain (analyze,buffers) select author, cnt 
 from co_count 
 where cnt = (select max(cnt) from co_count);
 
 
 --query 5
-select *
+explain (analyze,buffers) select *
 from (
 	select author_name, count(*) as pub_count
 	from authored join (
@@ -70,7 +94,7 @@ LIMIT 10;
 
 --query 6
 
-select title from publications
+explain (analyze,buffers) select title from publications
 where category = 'proceedings'
 and lower(title) like '%data%'
 and pubkey in (
@@ -79,7 +103,8 @@ select crossref, count(*) as cnt from publications where category = 'inproceedin
 group by crossref) T1 where T1.cnt > 100);
 
 --query 7a)
-select author.name, authored.author_name
+
+explain (analyze,buffers) select author.name, authored.author_name
 from (
 	author join authored on author.name = authored.author_name
 	join publications on authored.publication_key = publications.pubKey
@@ -90,7 +115,7 @@ group by authored.author_name, author.name
 having count(distinct publications.publishedYear) = 30;
 
 --query 7b)
-select author.name, authored.author_name, count(*)
+explain (analyze,buffers) select author.name, authored.author_name, count(*)
 from author join authored
 on author.name = authored.author_name
 where author.name in (
@@ -109,7 +134,7 @@ create view inpro_count as(
 	group by author_name, publishedyear
 );
 
-select author_name, cnt
+explain (analyze,buffers) select author_name, cnt
 from inpro_count
 where cnt = (
 	select cnt

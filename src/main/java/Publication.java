@@ -10,6 +10,8 @@ public class Publication {
     private String journal;
     private String booktitle;
     private String year;
+    private String month;
+    private String crossRef;
 
     public String getMdate() {
         return mdate;
@@ -67,6 +69,21 @@ public class Publication {
         this.year = year;
     }
 
+    public String getMonth() {
+        return month;
+    }
+
+    public void setMonth(String month) {
+        this.month = month;
+    }
+
+    public String getCrossRef() {
+        return crossRef;
+    }
+
+    public void setCrossRef(String crossRef) {
+        this.crossRef = crossRef;
+    }
 
     @Override
     public String toString() {
@@ -80,4 +97,5 @@ public class Publication {
                 ", year='" + year + '\'' +
                 '}';
     }
+
 }

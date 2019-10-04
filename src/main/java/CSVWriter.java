@@ -40,6 +40,10 @@ public class CSVWriter {
         oneLine.append("bookTitle");
         oneLine.append(CSV_SEPARATOR);
         oneLine.append("publishedYear");
+        oneLine.append(CSV_SEPARATOR);
+        oneLine.append("publishedMonth");
+        oneLine.append(CSV_SEPARATOR);
+        oneLine.append("crossRef");
         bw.write(oneLine.toString());
         bw.newLine();
         bw.flush();
@@ -66,6 +70,10 @@ public class CSVWriter {
             oneLine.append(escapeSpecialCharacters(publication.getBooktitle()));
             oneLine.append(CSV_SEPARATOR);
             oneLine.append(escapeSpecialCharacters(publication.getYear()));
+            oneLine.append(CSV_SEPARATOR);
+            oneLine.append(escapeSpecialCharacters(publication.getMonth()));
+            oneLine.append(CSV_SEPARATOR);
+            oneLine.append(escapeSpecialCharacters(publication.getCrossRef()));
             bw.write(oneLine.toString());
             bw.newLine();
         }
@@ -128,9 +136,6 @@ public class CSVWriter {
     }
 
     private static String escapeSpecialCharacters(String string) {
-        /**
-         * This is some stupid hacks that I hope nobody sees =)
-         */
         if (string == null) {
             return "null";
         }

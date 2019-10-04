@@ -16,7 +16,7 @@ public class ParserHandler extends DefaultHandler{
     private int level = 0;
     private int count = 0;
 
-    private List<String> publicationType = Arrays.asList("incollection", "book", "inproceedings", "article");
+    private List<String> publicationType = Arrays.asList("incollection", "book", "inproceedings", "article", "proceedings", "www", "phdthesis", "mastersthesis");
     private List<String> titleModifiers = Arrays.asList("tt", "sub", "i", "sup");
 
     private Set<String> authorSet = new HashSet<String>();
@@ -33,6 +33,8 @@ public class ParserHandler extends DefaultHandler{
     private String currentYear = "";
     private String currentBookTitle = "";
     private String currentJournal = "";
+    private String currentMonth = "";
+    private String currentCrossRef = "";
 
     private boolean publication = false;
     private boolean author = false;
@@ -41,6 +43,8 @@ public class ParserHandler extends DefaultHandler{
     private boolean journal =false;
     private boolean booktitle =false;
     private boolean titleModifier = false;
+    private boolean month = false;
+    private boolean crossRef = false;
 
     @Override
     public void startDocument() throws SAXException {
@@ -88,6 +92,10 @@ public class ParserHandler extends DefaultHandler{
                 booktitle = true;
             } else if (titleModifiers.contains(raw)) {
                 titleModifier = true;
+            } else if (raw.equalsIgnoreCase("month")) {
+                month = true;
+            } else if (raw.equalsIgnoreCase("crossref")) {
+                crossRef = true;
             }
         }
     }
@@ -107,18 +115,22 @@ public class ParserHandler extends DefaultHandler{
             currentBookTitle += string;
         } else if (titleModifier) {
             currentTitle += string;
+        } else if (month) {
+            currentMonth += string;
+        } else if (crossRef) {
+            currentCrossRef += string;
         }
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (level == 2 && publication) {
-            if (currentAuthoredSet.isEmpty()) {
-                Authored tempAuthored = new Authored();
-                tempAuthored.setAuthorName("N/A");
-                tempAuthored.setPublicationKey(currentPublicationKey);
-                currentAuthoredSet.add(tempAuthored);
-            }
+//            if (currentAuthoredSet.isEmpty()) {
+//                Authored tempAuthored = new Authored();
+//                tempAuthored.setAuthorName("N/A");
+//                tempAuthored.setPublicationKey(currentPublicationKey);
+//                currentAuthoredSet.add(tempAuthored);
+//            }
 //            authorSet.addAll(currentAuthorSet);
             authoredSet.addAll(currentAuthoredSet);
             publicationList.add(currentPublication);
@@ -153,6 +165,14 @@ public class ParserHandler extends DefaultHandler{
             currentPublication.setBooktitle(currentBookTitle);
             currentBookTitle = "";
             booktitle = false;
+        } else if (level == 3 && month) {
+            currentPublication.setMonth(currentMonth);
+            currentMonth = "";
+            month = false;
+        } else if (level == 3 && crossRef) {
+            currentPublication.setCrossRef(currentCrossRef);
+            currentCrossRef = "";
+            crossRef = false;
         }
         level--;
     }

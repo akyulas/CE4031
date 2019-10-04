@@ -18,6 +18,7 @@ public class Main {
             long duration = (endTime - startTime);
             System.out.println(duration);
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println(e);
         }
     }

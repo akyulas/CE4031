@@ -1,0 +1,3 @@
+q2 - 70 rows
+q6- 204 rows
+q7a - 57 rows
